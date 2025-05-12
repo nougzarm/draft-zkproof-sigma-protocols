@@ -45,17 +45,24 @@ class KeccakPermutationState:
     def __len__(self):
         return len(self.state)
 
-    def _keccak_state_to_bytes(self, state):
-        flattened_matrix = [val for row in state for val in row]
-        result = struct.pack('<25Q', *flattened_matrix)
-        return bytearray(result)
+    def _bytes_to_keccak_state(self):
+        flat = struct.unpack('<25Q', bytes(self.state))
+        A = [[0]*5 for _ in range(5)]
+        for y in range(5):
+            for x in range(5):
+                A[x][y] = flat[5*y + x]
+        return A
 
-    def _bytes_to_keccak_state(self, byte_array):
-        flat_state = list(struct.unpack('<25Q', byte_array))
-        return [flat_state[i:i+5] for i in range(0, 25, 5)]
+    def _keccak_state_to_bytes(self, state):
+        flat = [0]*25
+        for y in range(5):
+            for x in range(5):
+                flat[5*y + x] = state[x][y]
+        packed = struct.pack('<25Q', *flat)
+        return bytearray(packed)
 
     def permute(self):
-        state = self._bytes_to_keccak_state(bytearray(self.state))
+        state = self._bytes_to_keccak_state()
         new_state = self.p.KeccakF(state)
         self.state = self._keccak_state_to_bytes(new_state)
 

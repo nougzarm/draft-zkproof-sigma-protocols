@@ -9,10 +9,10 @@ CONTEXT_STRING = b'yellow submarine' * 2
 
 
 def test_vector(test_vector_function):
-    from sagelib.sigma_protocols import NISchnorrProofKeccakDuplexSpongeP256 as NIZK
+    from sagelib.sigma_protocols import NISchnorrProofKeccakDuplexSpongeBls12381 as NIZK
 
     def inner(vectors):
-        rng = TestDRNG("test vector seed".encode('utf-8'))
+        rng = TestDRNG(b'hello world')
         test_vector_name = f"{test_vector_function.__name__}"
 
         instance, witness = test_vector_function(rng, NIZK.Codec.GG)
@@ -85,8 +85,8 @@ def dleq(rng, group):
 
     """
     G = group.generator()
-    H = group.random(rng)
     x = group.ScalarField.random(rng)
+    H = group.random(rng)
     X = G * x
     Y = H * x
 
